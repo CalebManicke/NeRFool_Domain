@@ -249,7 +249,8 @@ def transform_src_cameras(src_cameras, rot_param, trans_param, num_source_views)
 
 
 def init_adv_perturb(args, src_ray_batch, epsilon, upper_limit, lower_limit):
-    delta = torch.zeros_like(src_ray_batch['src_rgbs'])  # ray_batch['src_rgbs'].shape=[1, N_views, H, W, 3]
+    # Should be torch.zeros_like(...)!!!
+    delta = torch.randn_like(src_ray_batch['src_rgbs'])  # ray_batch['src_rgbs'].shape=[1, N_views, H, W, 3]
     delta.uniform_(-epsilon, epsilon)
     delta.data = clamp(delta, lower_limit - src_ray_batch['src_rgbs'], upper_limit - src_ray_batch['src_rgbs'])
     delta.requires_grad = True
@@ -721,17 +722,50 @@ if __name__ == '__main__':
                     
                     loss.backward()
                     grad = delta.grad.detach()
-                    delta.data = torch.norm(delta.data + alpha * torch.sign(grad), 2)
-                    delta.grad.zero_()
+                    
+                    # Normalize the gradients to have unit L2 norm.
+                    grad_norm = torch.norm(grad.view(len(delta), -1), p=2, dim=1).clamp(min=1e-20)
+                    grad = grad / grad_norm.view(len(delta), 1, 1, 1)
 
+                    perturbed_delta_data = delta.data.detach() + alpha * torch.sign(grad)
+
+                    # Project perturbation delta to have L2 norm less than or equal to eps.
+                    change_in_delta = perturbed_delta_data - delta.data.detach()
+                    l2_delta_change = change_in_delta.renorm(p=2, dim=0, maxnorm=epsilon)
+                    with torch.no_grad(): delta = delta + l2_delta_change
+
+                    delta.grad.zero_()
+                    
                     if args.perturb_camera:
                         grad = rot_param.grad.detach()
-                        rot_param.data = rot_param.data + args.adv_lr * torch.sign(grad)
+
+                        # Normalize the gradients to have unit L2 norm.
+                        grad_norm = torch.norm(grad.view(len(rot_param), -1), p=2, dim=1).clamp(min=1e-20)
+                        grad = grad / grad_norm.view(len(rot_param), 1, 1, 1)
+
+                        perturbed_rot_param_data = rot_param.data.detach() + args.adv_lr * torch.sign(grad)
+                        
+                        # Project perturbation delta to have L2 norm less than or equal to eps.
+                        change_in_delta = perturbed_rot_param_data - rot_param.data.detach()
+                        l2_delta_change = change_in_delta.renorm(p=2, dim=0, maxnorm=args.rot_epsilon / 180 * np.pi)
+                        with torch.no_grad(): rot_param.data = rot_param.data + l2_delta_change
+
                         rot_param.grad.zero_()
 
                         grad = trans_param.grad.detach()
-                        trans_param.data = trans_param.data + args.adv_lr * torch.sign(grad)
-                        trans_param.grad.zero_()   
+
+                        # Normalize the gradients to have unit L2 norm.
+                        grad_norm = torch.norm(grad.view(len(trans_param), -1), p=2, dim=1).clamp(min=1e-20)
+                        grad = grad / grad_norm.view(len(trans_param), 1, 1, 1)
+
+                        perturbed_trans_param_data = trans_param.data.detach() + args.adv_lr * torch.sign(grad)
+
+                        # Project perturbation delta to have L2 norm less than or equal to eps.
+                        change_in_delta = perturbed_trans_param_data - trans_param.data.detach()
+                        l2_delta_change = change_in_delta.renorm(p=2, dim=0, maxnorm=args.trans_epsilon / 180 * np.pi)
+                        with torch.no_grad(): trans_param.data = trans_param.data + l2_delta_change
+
+                        trans_param.grad.zero_() 
                         
                 delta.data = clamp(delta.data, -epsilon, epsilon)
                 delta.data = clamp(delta.data, lower_limit - src_ray_batch['src_rgbs'], upper_limit - src_ray_batch['src_rgbs'])  
@@ -798,12 +832,14 @@ if __name__ == '__main__':
                     opt = PCGrad(opt, num_source_views=args.num_source_views)
 
             print("Start adversarial perturbation...")
+            # For specified number of iterations...
             for num_iter in range(args.adv_iters): 
                 if args.perturb_camera:
                     rot_trans = transform_src_cameras(src_cameras_orig, rot_param, trans_param, args.num_source_views)  # [num_source_views, 3, 4]
                     rot_trans = rot_trans.reshape(-1, 12)  # [num_source_views, 12] 
                     src_ray_batch['src_cameras'] = torch.cat([src_cameras_orig[:,:,:-16], rot_trans.unsqueeze(0), src_cameras_orig[:,:,-4:]], dim=2)
-                              
+                
+                # Update noise based on optimizer...
                 if args.use_adam:
                     loss, loss_dict = optimize_adv_perturb(args, delta, model, projector, src_ray_batch, data, return_loss=True)
                     
@@ -814,6 +850,7 @@ if __name__ == '__main__':
                     else:
                         loss.backward()
                         
+                    # Flipping signs for each iteration helps escape local minima!
                     delta.grad.data *= -1
 
                     if args.perturb_camera:
@@ -823,6 +860,7 @@ if __name__ == '__main__':
                     opt.step()
                     scheduler.step()
                     
+                # Or manually update noise (manually, like classical white-box attacks!)
                 else:
                     loss, loss_dict = optimize_adv_perturb(args, delta, model, projector, src_ray_batch, data, return_loss=True)
 
@@ -838,8 +876,10 @@ if __name__ == '__main__':
                     # Project perturbation delta to have L2 norm less than or equal to eps.
                     change_in_delta = perturbed_delta_data - delta.data.detach()
                     l2_delta_change = change_in_delta.renorm(p=2, dim=0, maxnorm=epsilon)
-                    delta = delta + l2_delta_change
+                    with torch.no_grad():
+                        delta += l2_delta_change
 
+                    #print(delta.grad)
                     delta.grad.zero_()
                     
                     if args.perturb_camera:
@@ -854,7 +894,7 @@ if __name__ == '__main__':
                         # Project perturbation delta to have L2 norm less than or equal to eps.
                         change_in_delta = perturbed_rot_param_data - rot_param.data.detach()
                         l2_delta_change = change_in_delta.renorm(p=2, dim=0, maxnorm=args.rot_epsilon / 180 * np.pi)
-                        rot_param.data = rot_param.data.detach() + l2_delta_change
+                        with torch.no_grad(): rot_param.data = rot_param.data + l2_delta_change
 
                         rot_param.grad.zero_()
 
@@ -869,7 +909,7 @@ if __name__ == '__main__':
                         # Project perturbation delta to have L2 norm less than or equal to eps.
                         change_in_delta = perturbed_trans_param_data - trans_param.data.detach()
                         l2_delta_change = change_in_delta.renorm(p=2, dim=0, maxnorm=args.trans_epsilon / 180 * np.pi)
-                        trans_param.data = trans_param.data.detach() + l2_delta_change
+                        with torch.no_grad(): trans_param.data = trans_param.data + l2_delta_change
 
                         trans_param.grad.zero_()      
                     
