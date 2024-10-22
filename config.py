@@ -125,6 +125,9 @@ def config_parser():
     parser.add_argument("--adv_lr", type=float, default=2,
                         help='learning rate for updating the perturbation')
 
+    # Add argument for toggling evaluation in L2 domain!
+    parser.add_argument("--use_l2", action='store_true', help='specify if perturbation added to delta is done in L2 domain or not')
+
     parser.add_argument('--use_clean_color', action='store_true', help='Use colors predicted on clean source views')
 
     parser.add_argument('--use_clean_density', action='store_true', help='Use density predicted on clean source views')
