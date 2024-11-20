@@ -1,5 +1,5 @@
 # Advancing Adversarial Robustness in GNeRFs: The IL2-NeRF Attack
-Nicole Meng, Caleb Manicke, Ronak Sahu, 
+Nicole Meng, Caleb Manicke, Ronak Sahu, Caiwen Ding, Yingjie Lao
 
 
 ## Abstract
