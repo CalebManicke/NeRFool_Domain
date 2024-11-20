@@ -1,30 +1,9 @@
-# NeRFool: Uncovering the Vulnerability of Generalizable Neural Radiance Fields against Adversarial Perturbations
-Yonggan Fu, Ye Yuan, Souvik Kundu, Shang Wu, Shunyao Zhang, Yingyan (Celine) Lin
-
-Accepted at ICML 2023. [ [Paper](http://proceedings.mlr.press/v202/fu23g/fu23g.pdf) | [Video](https://www.youtube.com/watch?v=oC8Xi4cEGKw) | [Slide](https://drive.google.com/file/d/1PCDSLrnuf8CZ3VloqBGldq8mR2CWM22o/view?usp=drive_link) ]
+# Advancing Adversarial Robustness in GNeRFs: The IL2-NeRF Attack
+Nicole Meng, Caleb Manicke, Ronak Sahu, 
 
 
-## An Overview of NeRFool
-- Generalizable Neural Radiance Fields (GNeRF) are one of the most promising real-world solutions for novel view synthesis, thanks to their cross-scene generalization capability and thus the possibility of instant rendering on new scenes. While adversarial robustness is essential for real-world applications, little study has been devoted to understanding its implication on GNeRF. In this work, we present NeRFool, which to the best of our knowledge is the first work that sets out to understand the adversarial robustness of GNeRF. Specifically, NeRFool unveils the vulnerability patterns and important insights regarding GNeRF's adversarial robustness and provides guidelines for defending against our proposed attacks.
-
-<p align="center">
-  <img src="images/overview.png" width="1000">
-</p>
-
-## Citation
-- If you find our work interesting or helpful to your research, welcome to cite our paper:
-
-```
-@article{fu2023nerfool,
-  title={NeRFool: Uncovering the Vulnerability of Generalizable Neural Radiance Fields against Adversarial Perturbations},
-  author={Fu, Yonggan and Yuan, Ye and Kundu, Souvik and Wu, Shang and Zhang, Shunyao and Lin, Yingyan},
-  journal={arXiv preprint arXiv:2306.06359},
-  year={2023}
-}
-```
-
-
-## Code Usage
+## Abstract
+- Generalizable Neural Radiance Fields (GNeRF) are recognized as one of the most promising techniques for novel view synthesis and 3D model generation in real-world applications. However, like other generative models in computer vision, ensuring their adversarial robustness against various threat models is essential for practical use. The pioneering work in this area, NeRFool, introduced a state-of-the-art attack that targets GNeRFs by manipulating source views before feature extraction, successfully disrupting the color and density results of the constructed views. Building on this foundation, we propose IL2-NeRF (Iterative $L_2$ NeRF Attack), a novel adversarial attack method that explores a new threat model (in the $L_2$ domain) for attacking GNeRFs.  We evaluated IL2-NeRF against two standard GNeRF models across three benchmark datasets, demonstrating similar performance compared to NeRFool, based on the same evaluation metrics proposed by NeRFool. Our results establish IL2-NeRF as the first adversarial method for GNeRFs under the \( L_2 \) norm. We establish a foundational $L_2$ threat model for future research, enabling direct performance comparisons while introducing a smoother, image-wide perturbation approach in Adversarial 3D Reconstruction.
 
 
 ### Prerequisites
