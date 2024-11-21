@@ -1,7 +1,7 @@
 ### INPUT
 expname = gnt_full
-rootdir = /home/yeyuan/GNeRF/GNT/  # REPLACE THIS with YOUR PATH.
-ckpt_path = /home/yeyuan/GNeRF/GNT/checkpoint/model_720000.pth  # REPLACE THIS with YOUR PATH.
+rootdir = # REPLACE THIS with YOUR PATH.
+ckpt_path = # REPLACE THIS with YOUR PATH.
 render_stride = 2
 distributed = False
 

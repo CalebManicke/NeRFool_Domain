@@ -653,8 +653,16 @@ def optimize_purif(args, purif, delta, model, projector, src_ray_batch, data, se
 def eval(args):
     device = "cuda" # "cuda:{}".format(args.local_rank)
     out_folder = os.path.join(args.rootdir, "out", args.expname)
-    print("outputs will be saved to {}".format(out_folder))
+    print("outputs will be saved to {}".format(out_folder)) 
+    eval_dataset_name = args.eval_dataset
+    extra_out_dir = '{}/{}'.format(eval_dataset_name, args.expname)
+    print("Results will be saved at eval/{}.".format(extra_out_dir))
+    out_folder = extra_out_dir
+    scene_name = args.eval_scenes[0]
     os.makedirs(out_folder, exist_ok=True)
+    out_scene_dir = os.path.join(extra_out_dir, '{}_{:06d}'.format(scene_name, 720000))
+    os.makedirs(out_scene_dir, exist_ok=True)
+    out_folder = out_scene_dir
 
     # save the args and config files
     f = os.path.join(out_folder, "args.txt")
@@ -1065,16 +1073,48 @@ def log_view(
 
                 loss.backward()
                 grad = delta.grad.detach()
-                delta.data = delta.data + alpha * torch.sign(grad)
+                # Normalize the gradients to have unit L2 norm.
+                grad_norm = torch.norm(grad.view(len(delta), -1), p=2, dim=1).clamp(min=1e-20)
+                grad = grad / grad_norm.view(len(delta), 1, 1, 1)
+
+                perturbed_delta_data = delta.data.detach() + alpha * torch.sign(grad)
+
+                # Project perturbation delta to have L2 norm less than or equal to eps.
+                change_in_delta = perturbed_delta_data - delta.data.detach()
+                l2_delta_change = change_in_delta.renorm(p=2, dim=0, maxnorm=epsilon)
+                with torch.no_grad(): delta.data = delta.data + l2_delta_change
+
                 delta.grad.zero_()
 
                 if args.perturb_camera:
                     grad = rot_param.grad.detach()
-                    rot_param.data = rot_param.data + args.adv_lr * torch.sign(grad)
+
+                    # Normalize the gradients to have unit L2 norm.
+                    grad_norm = torch.norm(grad.view(len(rot_param), -1), p=2, dim=1).clamp(min=1e-20)
+                    grad = grad / grad_norm.view(len(rot_param), 1, 1, 1)
+
+                    perturbed_rot_param_data = rot_param.data.detach() + args.adv_lr * torch.sign(grad)
+                    
+                    # Project perturbation delta to have L2 norm less than or equal to eps.
+                    change_in_delta = perturbed_rot_param_data - rot_param.data.detach()
+                    l2_delta_change = change_in_delta.renorm(p=2, dim=0, maxnorm=args.rot_epsilon / 180 * np.pi)
+                    with torch.no_grad(): rot_param.data = rot_param.data.detach() + l2_delta_change
+
                     rot_param.grad.zero_()
 
                     grad = trans_param.grad.detach()
-                    trans_param.data = trans_param.data + args.adv_lr * torch.sign(grad)
+
+                    # Normalize the gradients to have unit L2 norm.
+                    grad_norm = torch.norm(grad.view(len(trans_param), -1), p=2, dim=1).clamp(min=1e-20)
+                    grad = grad / grad_norm.view(len(trans_param), 1, 1, 1)
+
+                    perturbed_trans_param_data = trans_param.data.detach() + args.adv_lr * torch.sign(grad)
+
+                    # Project perturbation delta to have L2 norm less than or equal to eps.
+                    change_in_delta = perturbed_trans_param_data - trans_param.data.detach()
+                    l2_delta_change = change_in_delta.renorm(p=2, dim=0, maxnorm=args.trans_epsilon / 180 * np.pi)
+                    with torch.no_grad(): trans_param.data = trans_param.data.detach() + l2_delta_change
+
                     trans_param.grad.zero_()
 
             delta.data = clamp(delta.data, -epsilon, epsilon)

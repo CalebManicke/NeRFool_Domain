@@ -1,6 +1,6 @@
 ### INPUT
 expname = pretraining
-rootdir = /home/yf22/nerfool/IBRNet/  # REPLACE THIS with YOUR PATH.
+rootdir = # REPLACE THIS with YOUR PATH.
 render_stride = 2
 distributed = False
 

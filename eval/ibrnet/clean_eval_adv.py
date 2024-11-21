@@ -262,7 +262,7 @@ def transform_src_cameras(src_cameras, rot_param, trans_param, num_source_views)
 
     return rot_trans
 
-"""NICOLE CALEB RONAK MODIFY RANGE"""
+"""MODIFY RANGE"""
 # Intializes an adversarial perturbation to be applied to a batch of source rays 
 # Input: A dictionary containing ray data, specifying RGB pixel values of source views
 def init_adv_perturb(args, src_ray_batch, epsilon, upper_limit, lower_limit):
@@ -288,7 +288,7 @@ def init_adv_perturb(args, src_ray_batch, epsilon, upper_limit, lower_limit):
 
 
 
-"""NICOLE CALEB RONAK MODIFY RANGE"""
+"""MODIFY RANGE"""
 # Performs optimization of delta applied to a ray-based rendering system
 # Uses a combination of different losses
 # Handles the creation of synthetic data, rendering, and adversarial perturbation 
@@ -343,7 +343,7 @@ def optimize_adv_perturb(args, delta, model, projector, src_ray_batch, data, ret
             train_ray_batch['rgb'] = ret_gt['outputs_fine']['rgb']
             train_ray_batch['depth'] = ret_gt['outputs_fine']['depth']
     
-    """NICOLE CALEB RONAK ALL LOSS FUNCTIONS ARE HERE"""
+    """ALL LOSS FUNCTIONS ARE HERE"""
 
 
     """------Calculating loss in terms of RGB, Density, Depth Var, Depth Diff, Depth Consistency, Depth Smoothness, Camera Consistency------"""
@@ -995,7 +995,6 @@ def render_and_evaluate(args, cur_index, model, data, delta, src_ray_batch, ray_
 
     
 def Run_NerFool(args, model, test_loader, src_ray_batch_glb, out_scene_dir, load_gt_depth, results_dict, current_scene_results_dict, metrics):
-    """NICOLE CALEB RONAK LOOK HERE, MAIN LOOP STARTS"""
     # Loop over test data
     for i, data in enumerate(test_loader):
         rgb_path = data['rgb_path'][0] # Retrive path for image 
@@ -1026,7 +1025,7 @@ def Run_NerFool(args, model, test_loader, src_ray_batch_glb, out_scene_dir, load
             src_ray_batch = src_ray_batch_glb
             
         
-        # NeRFool case! NICOLE CALEB RONAK 
+        # NeRFool case! 
         if not args.no_attack and args.view_specific and (not args.use_trans_attack or i == 0):  # optimize view-specific adv peturb
             epsilon = torch.tensor(args.epsilon / 255.).cuda() # Normalize epsilon
             alpha = torch.tensor(args.adv_lr / 255.).cuda() # The learning rate for the perturbation
@@ -1067,7 +1066,6 @@ def Run_NerFool(args, model, test_loader, src_ray_batch_glb, out_scene_dir, load
                 if args.use_pcgrad:
                     opt = PCGrad(opt, num_source_views=args.num_source_views)
             
-            """NICOLE CALEB RONAK LOOK HERE AND IGNORE ADAMS"""
             """----------------PERTURBATION BEGINS------------------"""
             print("Start adversarial perturbation...")
 
@@ -1103,7 +1101,6 @@ def Run_NerFool(args, model, test_loader, src_ray_batch_glb, out_scene_dir, load
                     scheduler.step()
                 
                 else:
-                    """NICOLE CALEB RONAK OUR CASE STARTS HERE"""
                     # Optimize the adversarial perturbation
                     # loss_dict contains the individual losses used for perturbation optimization
                     loss, loss_dict = optimize_adv_perturb(args, delta, model, projector, src_ray_batch, data, return_loss=True)
@@ -1205,7 +1202,7 @@ def Run_NerFool(args, model, test_loader, src_ray_batch_glb, out_scene_dir, load
         render_and_evaluate(args, i, model, data, delta, src_ray_batch, ray_sampler, ray_batch, file_id, results_dict, current_scene_results_dict, metrics)
 
 
-"""NICOLE CALEB RONAK OPTIMIZATION BEGINS, SEPERATE INTO ATTACK & EVAL & SAVERESULT"""
+"""OPTIMIZATION BEGINS, SEPERATE INTO ATTACK & EVAL & SAVERESULT"""
 
 if __name__ == '__main__':
     

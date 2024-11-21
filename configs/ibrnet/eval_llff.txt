@@ -1,7 +1,7 @@
 ### INPUT
 expname = eval_llff
-rootdir = /home/cam18027/NeRFool/  # REPLACE THIS with YOUR PATH.
-ckpt_path = /home/cam18027/NeRFool/pretrained/model_255000.pth   # REPLACE THIS with YOUR PATH.
+rootdir = # REPLACE THIS with YOUR PATH.
+ckpt_path = # REPLACE THIS with YOUR PATH.
 distributed = False
 
 ## dataset

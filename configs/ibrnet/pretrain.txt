@@ -1,6 +1,6 @@
 ### INPUT
 expname = pretraining
-rootdir = /data4/ros18016/NeRFool/IBRNet/  # REPLACE THIS with YOUR PATH.
+rootdir = # REPLACE THIS with YOUR PATH.
 render_stride = 2
 distributed = True
 

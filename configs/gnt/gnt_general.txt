@@ -1,6 +1,6 @@
 ### INPUT
 expname = gnt_full
-rootdir = /home/yeyuan/NeRFool/GNT/  # REPLACE THIS with YOUR PATH.
+rootdir = # REPLACE THIS with YOUR PATH.
 render_stride = 2
 distributed = True
 

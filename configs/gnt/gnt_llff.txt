@@ -1,6 +1,7 @@
 ### INPUT
 expname = gnt_llff
-rootdir = /home/cam18027/NeRFool/  # REPLACE THIS with YOUR PATH.
+rootdir = # REPLACE THIS WITH YOUR PATH.
+ckpt_path = # REPLACE THIS WITH YOUR PATH
 render_stride = 2
 distributed = False
 
