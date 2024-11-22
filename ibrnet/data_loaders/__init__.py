@@ -23,7 +23,6 @@ from .ibrnet_collected import *
 from .realestate import *
 from .spaces_dataset import *
 from .nerf_synthetic import *
-from .custom_ii import *
 
 dataset_dict = {
     'spaces': SpacesFreeDataset,
@@ -34,5 +33,4 @@ dataset_dict = {
     'llff': LLFFDataset,
     'ibrnet_collected': IBRNetCollectedDataset,
     'llff_test': LLFFTestDataset,
-    'integral_imaging': IntegralImagingDataset,
 }
