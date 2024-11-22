@@ -44,7 +44,7 @@ CUDA_VISIBLE_DEVICES=0 python eval_adv.py --config ../configs/eval_llff.txt --ex
 - Attack using **IL2-NeRF** on the LLFF dataset:
 
 ```
-CUDA_VISIBLE_DEVICES=0 python eval_adv_L2.py --config ../configs/eval_llff.txt --expname test --num_source_views 4 --adv_iters 1000 --adv_lr 1 --epsilon 8 --use_adam --adam_lr 1e-3 --lr_gamma=1 --view_specific
+CUDA_VISIBLE_DEVICES=0 python eval_adv_L2.py --config ../configs/eval_llff.txt --expname test --num_source_views 4 --adv_iters 1000 --adv_lr 1 --epsilon 8 --adam_lr 1e-3 --lr_gamma=1 --view_specific
 ```
 
 ## Acknowledgement
