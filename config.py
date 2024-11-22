@@ -21,7 +21,7 @@ def config_parser():
     # general
     parser.add_argument('--config', is_config_file=True, help='config file path')
     parser.add_argument('--rootdir', type=str,
-                        default='/home/cam18027/NeRFool/IBRNet/',
+                        default='./',
                         help='the path to the project root directory. Replace this path with yours!')
     parser.add_argument("--expname", type=str, help='experiment name')
     parser.add_argument('--distributed', action='store_true', help='if use distributed training')
