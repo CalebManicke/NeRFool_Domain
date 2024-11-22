@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 CUDA_VISIBLE_DEVICES=0 python eval.py --config ../configs/eval_nerf_synthetic.txt --eval_scenes mic &
 CUDA_VISIBLE_DEVICES=1 python eval.py --config ../configs/eval_nerf_synthetic.txt --eval_scenes chair &
 CUDA_VISIBLE_DEVICES=2 python eval.py --config ../configs/eval_nerf_synthetic.txt --eval_scenes lego &
