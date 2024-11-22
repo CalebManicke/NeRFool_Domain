@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 FILE='render_llff_video'
 CUDA_VISIBLE_DEVICES=0 python $FILE.py --config ../configs/render_llff_video.txt --train_scenes orchids --eval_scenes orchids &
 CUDA_VISIBLE_DEVICES=1 python $FILE.py --config ../configs/render_llff_video.txt --train_scenes horns --eval_scenes horns &
