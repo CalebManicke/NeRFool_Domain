@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 SFX='1'
 FILE='run_nerf'
 CUDA_VISIBLE_DEVICES=0 python $FILE.py --config configs/finetune_llff.txt --train_scenes orchids --eval_scenes orchids --expname finetune_orchids_$SFX &
